@@ -5,10 +5,10 @@ use anchor_lang::solana_program::system_program;
 declare_id!("27fkeXbiL7f1xJvTv4mP5XQE4gbbTdDBq8pu5qqCgBoc");
 
 #[program]
-pub mod msg_reaction {
+pub mod twitter_reaction {
     use super::*;
 
-    pub fn send_tweet(ctx: Context<SendTweet>,content:String,like:u32) -> Result<()> {
+    pub fn send_tweet(ctx: Context<SendTweet>,content:String,like:u32,heart:u32,insight:u32,support:u32) -> Result<()> {
         let tweet: &mut Account<Tweet> =&mut ctx.accounts.tweet;
         let author: &Signer=&ctx.accounts.author;
         let clock : i64 = (Clock::get().unwrap()).unix_timestamp;
@@ -19,6 +19,9 @@ pub mod msg_reaction {
         tweet.time= clock;
         tweet.content=content;
         tweet.likes=like;
+        tweet.heart=heart;
+        tweet.insight=insight;
+        tweet.support=support;
         Ok(())
     }
 }
@@ -32,24 +35,30 @@ pub struct SendTweet<'info> {
     #[account(address = system_program::ID)]
     /// CHECK: We don't read or write so it's okay
     pub system_program: AccountInfo<'info>,}
-
+   
 #[account]
 pub struct Tweet {
     pub author : Pubkey,
     pub time : i64,
     pub content : String,
-    pub likes : u32
+    pub likes : u32,
+    pub heart : u32,
+    pub insight : u32,
+    pub support : u32
 }
 
 const DISCRIMINATOR_LENGTH: usize = 8;
 const PUBLIC_KEY_LENGTH: usize = 32;
 const TIME_LENGTH: usize = 8;
 const LIKE_LENGTH: usize = 4;
+const HEART_LENGTH: usize = 4;
+const INSIGHT_LENGTH: usize = 4;
+const SUPPORT_LENGTH: usize = 4;
 const STRING_LENGTH_PREFIX: usize = 4;
 const MAX_CONTENT_LENGTH: usize = 300 * 4;
 
 impl Tweet {
-    const LEN:usize=DISCRIMINATOR_LENGTH+PUBLIC_KEY_LENGTH+TIME_LENGTH+LIKE_LENGTH+STRING_LENGTH_PREFIX+MAX_CONTENT_LENGTH;
+    const LEN:usize=DISCRIMINATOR_LENGTH+PUBLIC_KEY_LENGTH+TIME_LENGTH+LIKE_LENGTH+STRING_LENGTH_PREFIX+MAX_CONTENT_LENGTH+HEART_LENGTH+SUPPORT_LENGTH+INSIGHT_LENGTH;
 }
 
 #[error_code]
